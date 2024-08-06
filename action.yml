@@ -1,0 +1,49 @@
+name: 'Yellow Chameleon'
+description: 'Synchronize a portion of a repository to match a portion of another repository'
+inputs:
+
+  source-path:
+    description: 'The path within the source repository to pull content from. Always use a UNIX-style path. (Optional, defaults to root of repository)'
+  destination-repository:
+    description: 'The repository to push content to. (Required)'
+  destination-path:
+    description: 'The path within the destination repository to pull content from. Always use a UNIX-style path. (Optional, defaults to root of repository)'
+
+  source-pat:
+    description: 'A Personal Authentication Token for the source repository. (Required if the source repository is private)'
+  source-pat-username:
+    description: 'The username associated with the source-pat. (Required if source-pat is defined)'
+  destination-pat:
+    description: 'A Personal Authentication Token for the destination-repository. (Required)'
+  destination-pat-username:
+    description: 'The username associated with the destination-pat. (Required)'
+
+  git-name:
+    description: 'The name used when creating a commit in the destination-repository. (Required)'
+  git-email:
+    description: 'The email used when creating a commit in the destination-repository. (Required)'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout Source
+      uses: actions/checkout@v4
+      with:
+        path: source
+    - name: Install Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Run Synchronizer
+      run: python src/synchronizer.py
+      env:
+        CAM_SOURCE_PATH: ${{ inputs.source-path }}
+        CAM_DEST_REPO: ${{ inputs.destination-repository }}
+
+        CAM_SOURCE_PAT_SECRET: ${{ inputs.source-pat }}
+        CAM_SOURCE_PAT_USER: ${{ inputs.source-pat-username }}
+        CAM_DEST_PAT_SECRET: ${{ inputs.destination-pat }}
+        CAM_DEST_PAT_USER: ${{ inputs.destination-pat-username }}
+
+        CAM_GIT_NAME: ${{ inputs.git-name }}
+        CAM_GIT_EMAIL: ${{ inputs.git-email }}
