@@ -4,8 +4,6 @@ use std::fs::read_dir;
 use std::os::unix::ffi::OsStrExt;
 use std::process::{Command, ExitCode, ExitStatus, Output, Stdio};
 
-use crate::get_environment_configuration::PatCredentials;
-
 pub(crate) fn ls(directory: &str) -> Result<Vec<String>, String> {
     match read_dir(directory) {
         Err(_) => Err(String::from(
@@ -137,25 +135,13 @@ pub(crate) fn git_config(name: &str, email: &str) -> Result<(), String> {
     return Ok(());
 }
 
-fn target_repo_url(repo: &str, pat: &Option<PatCredentials>) -> String {
-    match pat {
-        None => format!("https://github.com/{repo}.git"),
-        Some(pat_info) => {
-            let secret = &pat_info.secret;
-            let username = &pat_info.user;
-            format!("https://{username}:{secret}@github.com/{repo}.git")
-        }
-    }
-}
-
-pub(crate) fn git_clone(repo: &str, pat: &Option<PatCredentials>) -> Result<(), String> {
-    let url = target_repo_url(repo, pat);
+pub(crate) fn git_clone(repo_url: &str, pat: &Option<String>) -> Result<(), String> {
     let mut base_command = Command::new("git");
-    let mut comment_with_args = base_command.arg("clone").arg(url).arg("destination");
+    let mut comment_with_args = base_command.arg("clone").arg(repo_url).arg("destination");
     match pat {
         None => {}
-        Some(pat_info) => {
-            comment_with_args = comment_with_args.env("GH_TOKEN", &pat_info.secret);
+        Some(secret) => {
+            comment_with_args = comment_with_args.env("GH_TOKEN", secret);
         }
     };
     match comment_with_args.status() {
@@ -240,14 +226,13 @@ pub(crate) fn git_commit(cwd: &str) -> Result<(), String> {
     }
 }
 
-pub(crate) fn git_push(cwd: &str, repo: &str, pat: &Option<PatCredentials>) -> Result<(), String> {
-    let url = target_repo_url(repo, pat);
+pub(crate) fn git_push(cwd: &str, repo_url: &str, pat: &Option<String>) -> Result<(), String> {
     let mut base_command = Command::new("git");
-    let mut command_with_args = base_command.arg("push").arg(url);
+    let mut command_with_args = base_command.arg("push").arg(repo_url);
     match pat {
         None => {}
-        Some(pat_info) => {
-            command_with_args = command_with_args.env("GH_TOKEN", &pat_info.secret);
+        Some(secret) => {
+            command_with_args = command_with_args.env("GH_TOKEN", secret);
         }
     };
     command_with_args = command_with_args.current_dir(cwd).stdout(Stdio::null());

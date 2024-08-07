@@ -5,7 +5,6 @@ use std::process::{Command, Stdio};
 use crate::commands::{
     git_add_all, git_commit, git_diff, git_push, ls, mkdir, mkdir_all, mv, rm, GitDiffResult,
 };
-use crate::get_environment_configuration::PatCredentials;
 use crate::get_json_configuration::SourceConfiguration;
 
 pub(crate) fn apply_ignore_list(
@@ -109,8 +108,8 @@ pub(crate) fn apply_lock_list(
 
 pub(crate) fn git_upload(
     source_path: &Option<String>,
-    dest_repo: &str,
-    dest_pat: &Option<PatCredentials>,
+    dest_repo_url: &str,
+    dest_pat: &Option<String>,
 ) -> Result<(), String> {
     let cwd = match source_path {
         None => String::from("source"),
@@ -131,7 +130,7 @@ pub(crate) fn git_upload(
         Err(e) => return Err(e),
         Ok(_) => {}
     };
-    match git_push(&cwd, dest_repo, dest_pat) {
+    match git_push(&cwd, dest_repo_url, dest_pat) {
         Err(e) => return Err(e),
         Ok(_) => {}
     }

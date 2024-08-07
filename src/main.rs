@@ -42,13 +42,13 @@ fn main_impl() -> Result<(), String> {
         Ok(_) => {}
     }
 
-    // match git_clone(
-    //     &environment_configuration.dest_repo,
-    //     &environment_configuration.dest_pat,
-    // ) {
-    //     Err(e) => return Err(e),
-    //     Ok(_) => {}
-    // }
+    match git_clone(
+        &environment_configuration.dest_repo_url,
+        &environment_configuration.dest_pat,
+    ) {
+        Err(e) => return Err(e),
+        Ok(_) => {}
+    }
 
     let destination_configuration = match get_destination_configuration() {
         Err(e) => return Err(e),
@@ -71,14 +71,14 @@ fn main_impl() -> Result<(), String> {
         Ok(_) => {}
     }
 
-    // match git_upload(
-    //     &environment_configuration.source_path,
-    //     &environment_configuration.dest_repo,
-    //     &environment_configuration.dest_pat,
-    // ) {
-    //     Err(e) => return Err(e),
-    //     Ok(_) => {}
-    // }
+    match git_upload(
+        &environment_configuration.source_path,
+        &environment_configuration.dest_repo_url,
+        &environment_configuration.dest_pat,
+    ) {
+        Err(e) => return Err(e),
+        Ok(_) => {}
+    }
 
     return Ok(());
 }

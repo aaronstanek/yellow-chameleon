@@ -2,14 +2,10 @@ use std::env::var;
 
 use crate::sanitize_path::sanitize;
 
-pub(crate) struct PatCredentials {
-    pub secret: String,
-    pub user: String,
-}
 pub(crate) struct EnvironmentConfiguration {
     pub source_path: Option<String>,
-    pub dest_repo: String,
-    pub dest_pat: Option<PatCredentials>,
+    pub dest_repo_url: String,
+    pub dest_pat: Option<String>,
 
     pub git_name: String,
     pub git_email: String,
@@ -54,16 +50,14 @@ pub(crate) fn get_environment_configuration() -> Result<EnvironmentConfiguration
 
     let dest_pat_secret = get_optional_var("CAM_DEST_PAT_SECRET");
     let dest_pat_user = get_optional_var("CAM_DEST_PAT_USER");
-    let dest_pat = match dest_pat_secret {
-        None => None,
-        Some(secret) => match dest_pat_user {
+
+    let dest_repo_url = match &dest_pat_secret {
+        None => format!("https://github.com/{dest_repo}.git"),
+        Some(secret) => match &dest_pat_user {
             None => {
                 return Err(String::from("Expected destination-pat-username to be defined because destination-pat is defined"));
             }
-            Some(user) => Some(PatCredentials {
-                secret: secret,
-                user: user,
-            }),
+            Some(user) => format!("https://{user}:{secret}@github.com/{dest_repo}.git"),
         },
     };
 
@@ -79,8 +73,8 @@ pub(crate) fn get_environment_configuration() -> Result<EnvironmentConfiguration
 
     Ok(EnvironmentConfiguration {
         source_path: source_path,
-        dest_repo: dest_repo,
-        dest_pat: dest_pat,
+        dest_repo_url: dest_repo_url,
+        dest_pat: dest_pat_secret,
         git_name: git_name,
         git_email: git_email,
     })
