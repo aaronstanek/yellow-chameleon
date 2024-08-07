@@ -29,26 +29,26 @@ pub(crate) fn apply_dest_path(
     source_path: &Option<String>,
     dest_path: &Option<String>,
 ) -> Result<(), String> {
-    let temp_dir_path = match dest_path {
+    let temp_dir_inner_path = match dest_path {
         None => return Ok(()),
         Some(relative_path) => format!("temp/{relative_path}"),
     };
-    match mkdir_all(&temp_dir_path) {
+    match mkdir_all(&temp_dir_inner_path) {
         Err(e) => return Err(e),
         Ok(_) => {}
     }
-    let true_source_path = match source_path {
+    let full_source_path = match source_path {
         None => String::from("source"),
-        Some(path) => format!("source/{path}"),
+        Some(relative_path) => format!("source/{relative_path}"),
     };
-    let files_to_move_1 = match ls(&true_source_path) {
+    let files_to_move_1 = match ls(&full_source_path) {
         Err(e) => return Err(e),
         Ok(v) => v,
     };
     for filename in files_to_move_1 {
         match mv(
-            format!("{true_source_path}/{filename}").as_str(),
-            &temp_dir_path,
+            format!("{full_source_path}/{filename}").as_str(),
+            &temp_dir_inner_path,
         ) {
             Err(e) => return Err(e),
             Ok(_) => {}
@@ -59,7 +59,7 @@ pub(crate) fn apply_dest_path(
         Ok(v) => v,
     };
     for filename in files_to_move_2 {
-        match mv(format!("temp/{filename}").as_str(), &true_source_path) {
+        match mv(format!("temp/{filename}").as_str(), &full_source_path) {
             Err(e) => return Err(e),
             Ok(_) => {}
         }
