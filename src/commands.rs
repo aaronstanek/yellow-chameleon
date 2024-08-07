@@ -137,14 +137,14 @@ pub(crate) fn git_config(name: &str, email: &str) -> Result<(), String> {
 
 pub(crate) fn git_clone(repo_url: &str, pat: &Option<String>) -> Result<(), String> {
     let mut base_command = Command::new("git");
-    let mut comment_with_args = base_command.arg("clone").arg(repo_url).arg("destination");
+    let mut command_with_args = base_command.arg("clone").arg(repo_url).arg("destination");
     match pat {
         None => {}
         Some(secret) => {
-            comment_with_args = comment_with_args.env("GH_TOKEN", secret);
+            command_with_args = command_with_args.env("GH_TOKEN", secret);
         }
     };
-    match comment_with_args.status() {
+    match command_with_args.status() {
         Err(_) => Err(String::from("Internal Error: unable to call git clone")),
         Ok(status) => {
             if status.success() {
