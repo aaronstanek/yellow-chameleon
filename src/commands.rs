@@ -35,8 +35,12 @@ pub(crate) fn ls(directory: &str) -> Result<Vec<String>, String> {
     }
 }
 
-pub(crate) fn mv(original_path: &str, new_dir: &str) -> Result<(), String> {
-    match Command::new("mv").arg(original_path).arg(new_dir).status() {
+pub(crate) fn mv(original_path: &str, move_to_dir: &str) -> Result<(), String> {
+    match Command::new("mv")
+        .arg(original_path)
+        .arg(move_to_dir)
+        .status()
+    {
         Err(_) => Err(String::from("Internal Error: failed to call mv")),
         Ok(status) => {
             if status.success() {
