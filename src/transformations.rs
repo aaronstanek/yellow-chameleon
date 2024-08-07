@@ -13,7 +13,7 @@ pub(crate) fn apply_ignore_list(
 ) -> Result<(), String> {
     let read_dir = match source_path {
         None => String::from("source"),
-        Some(s) => format!("source/{s}"),
+        Some(relative_path) => format!("source/{relative_path}"),
     };
     for filename in ignore_list {
         let full_path = format!("{read_dir}/{filename}");
@@ -120,7 +120,7 @@ pub(crate) fn git_upload(
 ) -> Result<(), String> {
     let cwd = match source_path {
         None => String::from("source"),
-        Some(path) => format!("source/{path}"),
+        Some(relative_path) => format!("source/{relative_path}"),
     };
     match git_add_all(&cwd) {
         Err(e) => return Err(e),
@@ -140,6 +140,6 @@ pub(crate) fn git_upload(
     match git_push(&cwd, dest_repo_url, dest_pat) {
         Err(e) => return Err(e),
         Ok(_) => {}
-    }
+    };
     return Ok(());
 }
