@@ -52,7 +52,12 @@ pub(crate) fn get_environment_configuration() -> Result<EnvironmentConfiguration
     let dest_pat_user = get_optional_var("CAM_DEST_PAT_USER");
 
     let dest_repo_url = match &dest_pat_secret {
-        None => format!("https://github.com/{dest_repo}.git"),
+        None => match &dest_pat_user {
+            None => format!("https://github.com/{dest_repo}.git"),
+            Some(_) => {
+                return Err(String::from("Expected destination-pat to be defined because destination-pat-username is defined"));
+            }
+        },
         Some(secret) => match &dest_pat_user {
             None => {
                 return Err(String::from("Expected destination-pat-username to be defined because destination-pat is defined"));
