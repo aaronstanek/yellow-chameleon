@@ -39,6 +39,8 @@ pub(crate) fn mv(original_path: &str, move_to_dir: &str) -> Result<(), String> {
     match Command::new("mv")
         .arg(original_path)
         .arg(move_to_dir)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
         .status()
     {
         Err(_) => Err(String::from("Internal Error: failed to call mv")),
