@@ -130,13 +130,13 @@ pub(crate) fn get_destination_configuration() -> Result<DestinationConfiguration
                         Err(e) => return Err(e),
                         Ok(vec) => vec,
                     };
-                let dest_path = match read_path_key(&mut obj, DEST_CONFIG_FILE_NAME) {
+                let path = match read_path_key(&mut obj, DEST_CONFIG_FILE_NAME) {
                     Err(e) => return Err(e),
                     Ok(p) => p,
                 };
                 Ok(DestinationConfiguration {
                     lock_list: final_lock_list,
-                    path: dest_path,
+                    path: path,
                 })
             }
             _ => Err(format!(
