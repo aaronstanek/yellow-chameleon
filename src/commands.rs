@@ -190,6 +190,7 @@ pub(crate) fn git_diff(cwd: &str) -> Result<GitDiffResult, String> {
         .arg("HEAD")
         .arg("--name-only")
         .current_dir(cwd)
+        .stdout(Stdio::null())
         .output()
     {
         Err(_) => return Err(String::from("Internal Error: unable to call git diff")),
