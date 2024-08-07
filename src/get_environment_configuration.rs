@@ -13,7 +13,7 @@ pub(crate) struct EnvironmentConfiguration {
 
 fn get_required_var(name: &str, name_on_error: &str) -> Result<String, String> {
     match var(name) {
-        Err(_e) => Err(format!("Expected input {name_on_error} to be defined")),
+        Err(_) => Err(format!("Expected input {name_on_error} to be defined")),
         Ok(value) => {
             if value.len() == 0 {
                 Err(format!("Expected input {name_on_error} to be defined"))
@@ -26,7 +26,7 @@ fn get_required_var(name: &str, name_on_error: &str) -> Result<String, String> {
 
 fn get_optional_var(name: &str) -> Option<String> {
     match var(name) {
-        Err(_e) => None,
+        Err(_) => None,
         Ok(value) => {
             if value.len() == 0 {
                 None
