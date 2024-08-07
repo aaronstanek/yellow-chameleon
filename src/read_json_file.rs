@@ -7,11 +7,11 @@ pub(crate) fn read_json_file(filepath: &str) -> Result<Option<JsonValue>, String
         return Ok(None);
     }
     let file_contents = match read_to_string(filepath) {
-        Err(_e) => return Err(format!("Unable to read {filepath} as UTF-8 file.")),
+        Err(_) => return Err(format!("Unable to read {filepath} as UTF-8 file.")),
         Ok(s) => s,
     };
     let json_blob = match parse(&file_contents) {
-        Err(_e) => {
+        Err(_) => {
             return Err(format!("{filepath} contains invalid JSON"));
         }
         Ok(j) => j,
