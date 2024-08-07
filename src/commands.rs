@@ -119,7 +119,7 @@ fn git_config_impl(key: &str, value: &str) -> Result<(), String> {
             if status.success() {
                 Ok(())
             } else {
-                Err(String::from("git config returned nonzero exit status"))
+                Err(String::from("git config returned nonzero exit code"))
             }
         }
     }
