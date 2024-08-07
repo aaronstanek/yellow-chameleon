@@ -109,7 +109,6 @@ fn git_config_impl(key: &str, value: &str) -> Result<(), String> {
         .arg(key)
         .arg(value)
         .stdout(Stdio::null())
-        .stderr(Stdio::null())
         .status()
     {
         Err(_) => Err(String::from("Internal Error: failed to call git config")),
@@ -137,7 +136,11 @@ pub(crate) fn git_config(name: &str, email: &str) -> Result<(), String> {
 
 pub(crate) fn git_clone(repo_url: &str, pat: &Option<String>) -> Result<(), String> {
     let mut base_command = Command::new("git");
-    let mut command_with_args = base_command.arg("clone").arg(repo_url).arg("destination");
+    let mut command_with_args = base_command
+        .arg("clone")
+        .arg(repo_url)
+        .arg("destination")
+        .stdout(Stdio::null());
     match pat {
         None => {}
         Some(secret) => {
