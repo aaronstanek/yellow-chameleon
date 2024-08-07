@@ -62,7 +62,7 @@ fn read_path_key(
 ) -> Result<Option<String>, String> {
     match obj.remove("path") {
         None => Ok(None),
-        Some(obj_value) => match obj_value {
+        Some(value_at_key) => match value_at_key {
             JsonValue::String(s) => Ok(sanitize(s)),
             JsonValue::Short(s) => Ok(sanitize(String::from(s.as_str()))),
             _ => Err(format!(
