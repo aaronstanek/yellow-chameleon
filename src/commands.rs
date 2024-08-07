@@ -138,6 +138,7 @@ pub(crate) fn git_clone(repo_url: &str, pat: &Option<String>) -> Result<(), Stri
     let mut base_command = Command::new("git");
     let mut command_with_args = base_command
         .arg("clone")
+        .arg("--filter=tree:0")
         .arg(repo_url)
         .arg("destination")
         .stdout(Stdio::null());
