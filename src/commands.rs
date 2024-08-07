@@ -18,13 +18,13 @@ pub(crate) fn ls(directory: &str) -> Result<Vec<String>, String> {
                             "Internal Error: unable to read entry in directory",
                         ))
                     }
-                    Ok(e) => match e.file_name().to_str() {
-                        None => {
+                    Ok(e) => match e.file_name().into_string() {
+                        Err(_) => {
                             return Err(String::from(
                                 "Internal Error: file name is not valid Unicode",
                             ))
                         }
-                        Some(s) => entries_refined.push(s.to_owned()),
+                        Ok(s) => entries_refined.push(s),
                     },
                 }
             }
