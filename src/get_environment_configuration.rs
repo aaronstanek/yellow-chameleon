@@ -9,8 +9,6 @@ pub(crate) struct PatCredentials {
 pub(crate) struct EnvironmentConfiguration {
     pub source_path: Option<String>,
     pub dest_repo: String,
-
-    pub source_pat: Option<PatCredentials>,
     pub dest_pat: Option<PatCredentials>,
 
     pub git_name: String,
@@ -54,23 +52,6 @@ pub(crate) fn get_environment_configuration() -> Result<EnvironmentConfiguration
         Ok(s) => s,
     };
 
-    let source_pat_secret = get_optional_var("CAM_SOURCE_PAT_SECRET");
-    let source_pat_user = get_optional_var("CAM_SOURCE_PAT_USER");
-    let source_pat = match source_pat_secret {
-        None => None,
-        Some(secret) => match source_pat_user {
-            None => {
-                return Err(String::from(
-                    "Expected source-pat-username to be defined because source-pat is defined",
-                ));
-            }
-            Some(user) => Some(PatCredentials {
-                secret: secret,
-                user: user,
-            }),
-        },
-    };
-
     let dest_pat_secret = get_optional_var("CAM_DEST_PAT_SECRET");
     let dest_pat_user = get_optional_var("CAM_DEST_PAT_USER");
     let dest_pat = match dest_pat_secret {
@@ -99,7 +80,6 @@ pub(crate) fn get_environment_configuration() -> Result<EnvironmentConfiguration
     Ok(EnvironmentConfiguration {
         source_path: source_path,
         dest_repo: dest_repo,
-        source_pat: source_pat,
         dest_pat: dest_pat,
         git_name: git_name,
         git_email: git_email,

@@ -40,8 +40,6 @@ runs:
         CAM_SOURCE_PATH: ${{ inputs.source-path }}
         CAM_DEST_REPO: ${{ inputs.destination-repository }}
 
-        CAM_SOURCE_PAT_SECRET: ${{ inputs.source-pat }}
-        CAM_SOURCE_PAT_USER: ${{ inputs.source-pat-username }}
         CAM_DEST_PAT_SECRET: ${{ inputs.destination-pat }}
         CAM_DEST_PAT_USER: ${{ inputs.destination-pat-username }}
 
