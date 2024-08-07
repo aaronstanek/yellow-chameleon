@@ -47,10 +47,8 @@ fn unwrap_object(
 ) -> Result<Vec<String>, String> {
     match obj.remove(key) {
         None => Ok(output),
-        Some(obj_value) => match obj_value {
-            JsonValue::Array(array_value) => {
-                unwrap_array(output, array_value, key, filename_on_error)
-            }
+        Some(value_at_key) => match value_at_key {
+            JsonValue::Array(array) => unwrap_array(output, array, key, filename_on_error),
             _ => Err(format!(
                 "Expected {key} element of {filename_on_error} to be an array",
             )),
