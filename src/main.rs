@@ -20,14 +20,6 @@ fn main_impl() -> Result<(), String> {
         Ok(c) => c,
     };
 
-    match git_config(
-        &environment_configuration.git_name,
-        &environment_configuration.git_email,
-    ) {
-        Err(e) => return Err(e),
-        Ok(_) => {}
-    }
-
     let source_configuration =
         match get_source_configuration(&environment_configuration.source_path) {
             Err(e) => return Err(e),
@@ -37,6 +29,14 @@ fn main_impl() -> Result<(), String> {
     match apply_ignore_list(
         &environment_configuration.source_path,
         source_configuration.ignore_list,
+    ) {
+        Err(e) => return Err(e),
+        Ok(_) => {}
+    }
+
+    match git_config(
+        &environment_configuration.git_name,
+        &environment_configuration.git_email,
     ) {
         Err(e) => return Err(e),
         Ok(_) => {}
