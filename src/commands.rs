@@ -197,6 +197,18 @@ pub(crate) fn git_diff(cwd: &str) -> Result<GitDiffResult, String> {
             if !(output.status.success()) {
                 return Err(String::from("git diff returned a nonzero exit code"));
             }
+            // If git diff returns any sequence of characters that contains a character
+            // that is not an ASCII control code or ASCII whitespace
+            // then we can assume that the current repository state is
+            // different than the most recent commit.
+            //
+            // If git diff returns a sequence not containing such a character,
+            // then we can assume that the current repository state is,
+            // the same as the most recent commit.
+            //
+            // In a UTF-8 byte sequence, we can search for characters that are not
+            // ASCII control codes or ASCII whitespace by checking if any byte
+            // in the sequence has a value greater than 32.
             for byte in output.stdout {
                 if byte > 32 {
                     return Ok(GitDiffResult::Changes);
