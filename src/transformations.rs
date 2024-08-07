@@ -76,23 +76,30 @@ pub(crate) fn apply_lock_list(
         lock_item_parts.pop();
         let mut dir_tree = match source_path {
             None => String::from("source"),
-            Some(path) => format!("source/{path}"),
+            Some(relative_path) => format!("source/{relative_path}"),
         };
         for lock_item_part in lock_item_parts {
             dir_tree.push('/');
             dir_tree.push_str(lock_item_part);
-            if Path::new(&dir_tree).is_symlink() || Path::new(&dir_tree).is_file() {
+            let dir_tree_path = Path::new(&dir_tree);
+            if dir_tree_path.is_symlink() || !(dir_tree_path.is_dir()) {
                 match rm(&dir_tree) {
                     Err(e) => return Err(e),
                     Ok(_) => {}
                 }
-            }
-            if !(Path::new(&dir_tree).is_dir()) {
                 match mkdir(&dir_tree) {
                     Err(e) => return Err(e),
                     Ok(_) => {}
                 }
             }
+        }
+        let write_to = match source_path {
+            None => format!("source/{lock_item}"),
+            Some(relative_path) => format!("source/{relative_path}/{lock_item}"),
+        };
+        match rm(&write_to) {
+            Err(e) => return Err(e),
+            Ok(_) => {}
         }
         let read_from = format!("destination/{lock_item}");
         if !(Path::new(&read_from).exists()) {
