@@ -4,24 +4,30 @@ inputs:
 
   source-path:
     description: 'The path within the source repository to pull content from. Always use a UNIX-style path. (Optional, defaults to root of repository)'
+    required: false
+    type: string
   destination-repository:
     description: 'The repository to push content to. (Required)'
-  destination-path:
-    description: 'The path within the destination repository to pull content from. Always use a UNIX-style path. (Optional, defaults to root of repository)'
+    required: true
+    type: string
 
-  source-pat:
-    description: 'A Personal Authentication Token for the source repository. (Required if the source repository is private)'
-  source-pat-username:
-    description: 'The username associated with the source-pat. (Required if source-pat is defined)'
   destination-pat:
     description: 'A Personal Authentication Token for the destination-repository. (Required)'
+    required: true
+    type: string
   destination-pat-username:
     description: 'The username associated with the destination-pat. (Required)'
+    required: true
+    type: string
 
   git-name:
     description: 'The name used when creating a commit in the destination-repository. (Required)'
+    required: true
+    type: string
   git-email:
     description: 'The email used when creating a commit in the destination-repository. (Required)'
+    required: true
+    type: string
 
 runs:
   using: "composite"
@@ -30,12 +36,23 @@ runs:
       uses: actions/checkout@v4
       with:
         path: source
-    - name: Install Python
-      uses: actions/setup-python@v5
+    - name: Check for cached yellow-chameleon binary
+      id: check-cache
+      uses: actions/cache@v4
       with:
-        python-version: '3.12'
-    - name: Run Synchronizer
-      run: python src/synchronizer.py
+        path: yellow-chameleon
+        key: ${{ runner.os }}-yellow-chameleon-v0.1
+    - name: Download yellow-chameleon binary if not cached
+      if: steps.check-cache.outputs.cache-hit != 'true'
+      uses: robinraju/release-downloader@v1
+      with:
+        repository: aaronstanek/yellow-chameleon
+        tag: v0.1-binary
+        fileName: yellow-chameleon
+    - name: Set yellow-chameleon binary to be executable
+      run: sudo chmod +x yellow-chameleon
+    - name: Run yellow-chameleon
+      run: ./yellow-chameleon
       env:
         CAM_SOURCE_PATH: ${{ inputs.source-path }}
         CAM_DEST_REPO: ${{ inputs.destination-repository }}
