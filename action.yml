@@ -33,19 +33,16 @@ runs:
   using: "composite"
   steps:
     - name: Checkout Source
-      shell: bash
       uses: actions/checkout@v4
       with:
         path: source
     - name: Check for cached yellow-chameleon binary
-      shell: bash
       id: check-cache
       uses: actions/cache@v4
       with:
         path: yellow-chameleon
         key: ${{ runner.os }}-yellow-chameleon-v0.1
     - name: Download yellow-chameleon binary if not cached
-      shell: bash
       if: steps.check-cache.outputs.cache-hit != 'true'
       uses: robinraju/release-downloader@v1
       with:
