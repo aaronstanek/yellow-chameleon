@@ -3,7 +3,7 @@ use std::env::var;
 use crate::sanitize_path::sanitize;
 
 pub(crate) struct EnvironmentConfiguration {
-    pub source_path: Option<String>,
+    pub source_path: String,
     pub dest_repo_url: String,
     pub dest_pat: Option<String>,
 
@@ -39,8 +39,11 @@ fn get_optional_var(name: &str) -> Option<String> {
 
 pub(crate) fn get_environment_configuration() -> Result<EnvironmentConfiguration, String> {
     let source_path = match get_optional_var("CAM_SOURCE_PATH") {
-        None => None,
-        Some(s) => sanitize(s),
+        None => String::from("source"),
+        Some(s) => match sanitize(s) {
+            None => String::from("source"),
+            Some(sanitized) => format!("source/{sanitized}"),
+        },
     };
 
     let dest_repo = match get_required_var("CAM_DEST_REPO", "destination-repository") {

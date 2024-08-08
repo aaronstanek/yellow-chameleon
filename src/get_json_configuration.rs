@@ -75,12 +75,9 @@ fn read_path_key(
 const SOURCE_CONFIG_FILE_NAME: &str = ".yellow-chameleon-source.json";
 
 pub(crate) fn get_source_configuration(
-    source_path: &Option<String>,
+    source_path: &String,
 ) -> Result<SourceConfiguration, String> {
-    let read_path = match source_path {
-        None => format!("source/{SOURCE_CONFIG_FILE_NAME}"),
-        Some(path) => format!("source/{path}/{SOURCE_CONFIG_FILE_NAME}"),
-    };
+    let read_path = format!("{source_path}/{SOURCE_CONFIG_FILE_NAME}");
     let json_blob_option = match read_json_file(&read_path) {
         Err(e) => return Err(e),
         Ok(j) => j,

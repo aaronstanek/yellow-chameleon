@@ -8,15 +8,11 @@ use crate::commands::{
 use crate::get_json_configuration::SourceConfiguration;
 
 pub(crate) fn apply_ignore_list(
-    source_path: &Option<String>,
+    source_path: &String,
     ignore_list: Vec<String>,
 ) -> Result<(), String> {
-    let read_dir = match source_path {
-        None => String::from("source"),
-        Some(relative_path) => format!("source/{relative_path}"),
-    };
     for filename in ignore_list {
-        let full_path = format!("{read_dir}/{filename}");
+        let full_path = format!("{source_path}/{filename}");
         match rm(&full_path) {
             Err(e) => return Err(e),
             Ok(_) => {}
@@ -26,7 +22,7 @@ pub(crate) fn apply_ignore_list(
 }
 
 pub(crate) fn apply_dest_path(
-    source_path: &Option<String>,
+    source_path: &String,
     dest_path: &Option<String>,
 ) -> Result<(), String> {
     let temp_dir_inner_path = match dest_path {
@@ -37,17 +33,13 @@ pub(crate) fn apply_dest_path(
         Err(e) => return Err(e),
         Ok(_) => {}
     }
-    let full_source_path = match source_path {
-        None => String::from("source"),
-        Some(relative_path) => format!("source/{relative_path}"),
-    };
-    let files_to_move_1 = match ls(&full_source_path) {
+    let files_to_move_1 = match ls(&source_path) {
         Err(e) => return Err(e),
         Ok(v) => v,
     };
     for filename in files_to_move_1 {
         match mv(
-            format!("{full_source_path}/{filename}").as_str(),
+            format!("{source_path}/{filename}").as_str(),
             &temp_dir_inner_path,
         ) {
             Err(e) => return Err(e),
@@ -59,7 +51,7 @@ pub(crate) fn apply_dest_path(
         Ok(v) => v,
     };
     for filename in files_to_move_2 {
-        match mv(format!("temp/{filename}").as_str(), &full_source_path) {
+        match mv(format!("temp/{filename}").as_str(), &source_path) {
             Err(e) => return Err(e),
             Ok(_) => {}
         }
@@ -67,17 +59,11 @@ pub(crate) fn apply_dest_path(
     Ok(())
 }
 
-pub(crate) fn apply_lock_list(
-    source_path: &Option<String>,
-    lock_list: &Vec<String>,
-) -> Result<(), String> {
+pub(crate) fn apply_lock_list(source_path: &String, lock_list: &Vec<String>) -> Result<(), String> {
     for lock_item in lock_list {
         let mut lock_item_parts: Vec<&str> = lock_item.split("/").collect();
         lock_item_parts.pop();
-        let mut dir_tree = match source_path {
-            None => String::from("source"),
-            Some(relative_path) => format!("source/{relative_path}"),
-        };
+        let mut dir_tree = source_path.clone();
         for lock_item_part in lock_item_parts {
             dir_tree.push('/');
             dir_tree.push_str(lock_item_part);
@@ -93,10 +79,7 @@ pub(crate) fn apply_lock_list(
                 }
             }
         }
-        let write_to = match source_path {
-            None => format!("source/{lock_item}"),
-            Some(relative_path) => format!("source/{relative_path}/{lock_item}"),
-        };
+        let write_to = format!("{source_path}/{lock_item}");
         match rm(&write_to) {
             Err(e) => return Err(e),
             Ok(_) => {}
@@ -114,30 +97,26 @@ pub(crate) fn apply_lock_list(
 }
 
 pub(crate) fn git_upload(
-    source_path: &Option<String>,
+    source_path: &String,
     dest_repo_url: &str,
     dest_pat: &Option<String>,
 ) -> Result<(), String> {
-    let cwd = match source_path {
-        None => String::from("source"),
-        Some(relative_path) => format!("source/{relative_path}"),
-    };
-    match git_add_all(&cwd) {
+    match git_add_all(&source_path) {
         Err(e) => return Err(e),
         Ok(_) => {}
     };
-    match git_diff(&cwd) {
+    match git_diff(&source_path) {
         Err(e) => return Err(e),
         Ok(diff) => match diff {
             GitDiffResult::NoChanges => return Ok(()),
             GitDiffResult::Changes => {}
         },
     };
-    match git_commit(&cwd) {
+    match git_commit(&source_path) {
         Err(e) => return Err(e),
         Ok(_) => {}
     };
-    match git_push(&cwd, dest_repo_url, dest_pat) {
+    match git_push(&source_path, dest_repo_url, dest_pat) {
         Err(e) => return Err(e),
         Ok(_) => {}
     };
