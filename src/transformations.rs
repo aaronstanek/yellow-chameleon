@@ -97,7 +97,7 @@ pub(crate) fn git_upload(
     source_path: &String,
     dest_repo_url: &str,
     dest_pat: &Option<String>,
-) -> Result<(), String> {
+) -> Result<GitDiffResult, String> {
     match git_add_all(&source_path) {
         Err(e) => return Err(e),
         Ok(_) => {}
@@ -105,7 +105,7 @@ pub(crate) fn git_upload(
     match git_diff(&source_path) {
         Err(e) => return Err(e),
         Ok(diff) => match diff {
-            GitDiffResult::NoChanges => return Ok(()),
+            GitDiffResult::NoChanges => return Ok(GitDiffResult::NoChanges),
             GitDiffResult::Changes => {}
         },
     };
@@ -117,5 +117,5 @@ pub(crate) fn git_upload(
         Err(e) => return Err(e),
         Ok(_) => {}
     };
-    return Ok(());
+    return Ok(GitDiffResult::Changes);
 }

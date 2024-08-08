@@ -8,12 +8,12 @@ mod transformations;
 use std::path::Path;
 use std::process::ExitCode;
 
-use crate::commands::{git_clone, git_config};
+use crate::commands::{git_clone, git_config, GitDiffResult};
 use crate::get_environment_configuration::get_environment_configuration;
 use crate::get_json_configuration::{get_destination_configuration, get_source_configuration};
 use crate::transformations::{apply_dest_path, apply_ignore_list, apply_lock_list, git_upload};
 
-fn main_impl() -> Result<(), String> {
+fn main_impl() -> Result<GitDiffResult, String> {
     let environment_configuration = match get_environment_configuration() {
         Err(e) => return Err(e),
         Ok(c) => c,
@@ -74,25 +74,30 @@ fn main_impl() -> Result<(), String> {
         Ok(_) => {}
     }
 
-    match git_upload(
+    git_upload(
         &environment_configuration.source_path,
         &environment_configuration.dest_repo_url,
         &environment_configuration.dest_pat,
-    ) {
-        Err(e) => return Err(e),
-        Ok(_) => {}
-    }
-
-    return Ok(());
+    )
 }
 
 fn main() -> ExitCode {
     match main_impl() {
         Err(e) => {
-            eprint!("{}", e);
-            eprint!("\nStopping Sync\n");
+            eprintln!("{}", e);
+            eprintln!("Sync stopped due to an error");
             ExitCode::FAILURE
         }
-        Ok(()) => ExitCode::SUCCESS,
+        Ok(git_diff_result) => {
+            println!(
+                "{}",
+                match git_diff_result {
+                    GitDiffResult::NoChanges =>
+                        "No changes detected in source. Destination repository was not updated.",
+                    GitDiffResult::Changes => "Sync successful",
+                }
+            );
+            ExitCode::SUCCESS
+        }
     }
 }
