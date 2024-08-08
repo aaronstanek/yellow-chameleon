@@ -1,11 +1,8 @@
 use std::path::Path;
 
-use std::process::{Command, Stdio};
-
 use crate::commands::{
     git_add_all, git_commit, git_diff, git_push, ls, mkdir, mkdir_all, mv, rm, GitDiffResult,
 };
-use crate::get_json_configuration::SourceConfiguration;
 
 pub(crate) fn apply_ignore_list(
     source_path: &String,

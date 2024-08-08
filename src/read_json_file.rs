@@ -1,6 +1,7 @@
-use json::{parse, JsonValue};
 use std::fs::read_to_string;
 use std::path::Path;
+
+use json::{parse, JsonValue};
 
 pub(crate) fn read_json_file(filepath: &str) -> Result<Option<JsonValue>, String> {
     if !(Path::new(filepath).exists()) {

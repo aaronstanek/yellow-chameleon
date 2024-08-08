@@ -3,7 +3,7 @@ pub(crate) fn sanitize(s: String) -> Option<String> {
     for part in s.split("/") {
         match part {
             "" | "." | ".." => {}
-            other => parts.push(part),
+            _ => parts.push(part),
         }
     }
     let sanitized = parts.join("/");

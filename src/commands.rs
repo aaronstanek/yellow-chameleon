@@ -1,8 +1,7 @@
-use chrono::offset::Utc;
-use std::ffi::OsStr;
 use std::fs::read_dir;
-use std::os::unix::ffi::OsStrExt;
-use std::process::{Command, ExitCode, ExitStatus, Output, Stdio};
+use std::process::{Command, Stdio};
+
+use chrono::offset::Utc;
 
 pub(crate) fn ls(directory: &str) -> Result<Vec<String>, String> {
     match read_dir(directory) {

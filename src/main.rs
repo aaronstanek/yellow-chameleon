@@ -8,12 +8,10 @@ mod transformations;
 use std::path::Path;
 use std::process::ExitCode;
 
-use transformations::apply_lock_list;
-
 use crate::commands::{git_clone, git_config};
 use crate::get_environment_configuration::get_environment_configuration;
 use crate::get_json_configuration::{get_destination_configuration, get_source_configuration};
-use crate::transformations::{apply_dest_path, apply_ignore_list, git_upload};
+use crate::transformations::{apply_dest_path, apply_ignore_list, apply_lock_list, git_upload};
 
 fn main_impl() -> Result<(), String> {
     let environment_configuration = match get_environment_configuration() {

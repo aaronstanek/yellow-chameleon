@@ -1,8 +1,9 @@
 use std::collections::HashSet;
 
+use json::JsonValue;
+
 use crate::read_json_file::read_json_file;
 use crate::sanitize_path::sanitize;
-use json::JsonValue;
 
 pub(crate) struct SourceConfiguration {
     pub ignore_list: Vec<String>,
@@ -42,7 +43,7 @@ fn unwrap_array(
 }
 
 fn unwrap_object(
-    mut output: HashSet<String>,
+    output: HashSet<String>,
     obj: &mut json::object::Object,
     key: &str,
     filename_on_error: &str,
