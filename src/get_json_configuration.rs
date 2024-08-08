@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::read_json_file::read_json_file;
 use crate::sanitize_path::sanitize;
 use json::JsonValue;
@@ -12,23 +14,23 @@ pub(crate) struct DestinationConfiguration {
 }
 
 fn unwrap_array(
-    mut output: Vec<String>,
+    mut output: HashSet<String>,
     input: Vec<JsonValue>,
     key_name_on_error: &str,
     filename_on_error: &str,
-) -> Result<Vec<String>, String> {
+) -> Result<HashSet<String>, String> {
     for array_element in input.into_iter() {
         match array_element {
             JsonValue::String(s) => match sanitize(s) {
                 None => {},
                 Some(sanitized) => {
-                    output.push(sanitized)
+                    output.insert(sanitized);
                 }
             },
             JsonValue::Short(s) => match sanitize(String::from(s.as_str())) {
                 None => {},
                 Some(sanitized) => {
-                    output.push(sanitized)
+                    output.insert(sanitized);
                 }
             },
             _ => {
@@ -40,11 +42,11 @@ fn unwrap_array(
 }
 
 fn unwrap_object(
-    mut output: Vec<String>,
+    mut output: HashSet<String>,
     obj: &mut json::object::Object,
     key: &str,
     filename_on_error: &str,
-) -> Result<Vec<String>, String> {
+) -> Result<HashSet<String>, String> {
     match obj.remove(key) {
         None => Ok(output),
         Some(value_at_key) => match value_at_key {
@@ -82,13 +84,14 @@ pub(crate) fn get_source_configuration(
         Err(e) => return Err(e),
         Ok(j) => j,
     };
-    let mut initial_ignore_list: Vec<String> =
-        vec![String::from(".git"), String::from(SOURCE_CONFIG_FILE_NAME)];
-    let final_ignore_list_result = match json_blob_option {
-        None => Ok(initial_ignore_list),
+    let mut initial_ignore_set: HashSet<String> = HashSet::new();
+    initial_ignore_set.insert(String::from(".git"));
+    initial_ignore_set.insert(String::from(SOURCE_CONFIG_FILE_NAME));
+    let final_ignore_set_result = match json_blob_option {
+        None => Ok(initial_ignore_set),
         Some(json_blob) => match json_blob {
             JsonValue::Object(mut obj) => unwrap_object(
-                initial_ignore_list,
+                initial_ignore_set,
                 &mut obj,
                 "ignore",
                 SOURCE_CONFIG_FILE_NAME,
@@ -98,9 +101,15 @@ pub(crate) fn get_source_configuration(
             )),
         },
     };
-    match final_ignore_list_result {
+    match final_ignore_set_result {
         Err(e) => Err(e),
-        Ok(list) => Ok(SourceConfiguration { ignore_list: list }),
+        Ok(set) => {
+            let mut ignore_list: Vec<String> = set.into_iter().collect();
+            ignore_list.sort_unstable();
+            Ok(SourceConfiguration {
+                ignore_list: ignore_list,
+            })
+        }
     }
 }
 
@@ -112,25 +121,38 @@ pub(crate) fn get_destination_configuration() -> Result<DestinationConfiguration
             Err(e) => return Err(e),
             Ok(j) => j,
         };
-    let mut initial_lock_list: Vec<String> =
-        vec![String::from(".git"), String::from(DEST_CONFIG_FILE_NAME)];
+    let mut initial_lock_set: HashSet<String> = HashSet::new();
+    initial_lock_set.insert(String::from(".git"));
+    initial_lock_set.insert(String::from(DEST_CONFIG_FILE_NAME));
     match json_blob_option {
-        None => Ok(DestinationConfiguration {
-            lock_list: initial_lock_list,
-            path: None,
-        }),
+        None => {
+            let mut list: Vec<String> = initial_lock_set.into_iter().collect();
+            list.sort_unstable();
+            Ok(DestinationConfiguration {
+                lock_list: list,
+                path: None,
+            })
+        }
         Some(json_blob) => match json_blob {
             JsonValue::Object(mut obj) => {
-                let final_lock_list =
-                    match unwrap_object(initial_lock_list, &mut obj, "lock", DEST_CONFIG_FILE_NAME)
-                    {
-                        Err(e) => return Err(e),
-                        Ok(vec) => vec,
-                    };
+                let final_lock_list = match unwrap_object(
+                    initial_lock_set,
+                    &mut obj,
+                    "lock",
+                    DEST_CONFIG_FILE_NAME,
+                ) {
+                    Err(e) => return Err(e),
+                    Ok(set) => {
+                        let mut list: Vec<String> = set.into_iter().collect();
+                        list.sort_unstable();
+                        list
+                    }
+                };
                 let path = match read_path_key(&mut obj, DEST_CONFIG_FILE_NAME) {
                     Err(e) => return Err(e),
                     Ok(p) => p,
                 };
+
                 Ok(DestinationConfiguration {
                     lock_list: final_lock_list,
                     path: path,
