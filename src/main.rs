@@ -5,6 +5,7 @@ mod read_json_file;
 mod sanitize_path;
 mod transformations;
 
+use std::path::Path;
 use std::process::ExitCode;
 
 use transformations::apply_lock_list;
@@ -19,6 +20,10 @@ fn main_impl() -> Result<(), String> {
         Err(e) => return Err(e),
         Ok(c) => c,
     };
+
+    if !(Path::new(&environment_configuration.source_path).is_dir()) {
+        return Err(String::from("source path is not a directory"));
+    }
 
     let source_configuration =
         match get_source_configuration(&environment_configuration.source_path) {
