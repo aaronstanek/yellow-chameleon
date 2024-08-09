@@ -41,13 +41,13 @@ runs:
       uses: actions/cache@v4
       with:
         path: yellow-chameleon
-        key: ${{ runner.os }}-yellow-chameleon-v0.1
+        key: ${{ runner.os }}-yellow-chameleon-v0.2
     - name: Download yellow-chameleon binary if not cached
       if: steps.check-cache.outputs.cache-hit != 'true'
       uses: robinraju/release-downloader@v1
       with:
         repository: aaronstanek/yellow-chameleon
-        tag: v0.1-binary
+        tag: v0.2
         fileName: yellow-chameleon
     - name: Set yellow-chameleon binary to be executable
       shell: bash
