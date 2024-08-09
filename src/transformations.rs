@@ -96,7 +96,7 @@ pub(crate) fn apply_lock_list(source_path: &String, lock_list: &Vec<String>) -> 
 pub(crate) fn git_upload(
     source_path: &String,
     dest_repo_url: &str,
-    dest_pat: &Option<String>,
+    dest_pat: &str,
 ) -> Result<GitDiffResult, String> {
     match git_add_all(&source_path) {
         Err(e) => return Err(e),

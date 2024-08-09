@@ -133,21 +133,16 @@ pub(crate) fn git_config(name: &str, email: &str) -> Result<(), String> {
     return Ok(());
 }
 
-pub(crate) fn git_clone(repo_url: &str, pat: &Option<String>) -> Result<(), String> {
-    let mut base_command = Command::new("git");
-    let mut command_with_args = base_command
+pub(crate) fn git_clone(repo_url: &str, pat: &str) -> Result<(), String> {
+    match Command::new("git")
         .arg("clone")
         .arg("--filter=tree:0")
         .arg(repo_url)
         .arg("destination")
-        .stdout(Stdio::null());
-    match pat {
-        None => {}
-        Some(secret) => {
-            command_with_args = command_with_args.env("GH_TOKEN", secret);
-        }
-    };
-    match command_with_args.status() {
+        .stdout(Stdio::null())
+        .env("GH_TOKEN", pat)
+        .status()
+    {
         Err(_) => Err(String::from("Internal Error: unable to call git clone")),
         Ok(status) => {
             if status.success() {
@@ -241,17 +236,15 @@ pub(crate) fn git_commit(cwd: &str) -> Result<(), String> {
     }
 }
 
-pub(crate) fn git_push(cwd: &str, repo_url: &str, pat: &Option<String>) -> Result<(), String> {
-    let mut base_command = Command::new("git");
-    let mut command_with_args = base_command.arg("push").arg(repo_url);
-    match pat {
-        None => {}
-        Some(secret) => {
-            command_with_args = command_with_args.env("GH_TOKEN", secret);
-        }
-    };
-    command_with_args = command_with_args.current_dir(cwd).stdout(Stdio::null());
-    match command_with_args.status() {
+pub(crate) fn git_push(cwd: &str, repo_url: &str, pat: &str) -> Result<(), String> {
+    match Command::new("git")
+        .arg("push")
+        .arg(repo_url)
+        .current_dir(cwd)
+        .stdout(Stdio::null())
+        .env("GH_TOKEN", pat)
+        .status()
+    {
         Err(_) => Err(String::from("Internal Error: unable to call git push")),
         Ok(status) => {
             if status.success() {
