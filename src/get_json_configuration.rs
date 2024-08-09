@@ -87,6 +87,7 @@ pub(crate) fn get_source_configuration(
     };
     let mut initial_ignore_set: HashSet<String> = HashSet::new();
     initial_ignore_set.insert(String::from(".git"));
+    initial_ignore_set.insert(String::from(".github"));
     initial_ignore_set.insert(String::from(SOURCE_CONFIG_FILE_NAME));
     let final_ignore_set_result = match json_blob_option {
         None => Ok(initial_ignore_set),
@@ -124,6 +125,7 @@ pub(crate) fn get_destination_configuration() -> Result<DestinationConfiguration
         };
     let mut initial_lock_set: HashSet<String> = HashSet::new();
     initial_lock_set.insert(String::from(".git"));
+    initial_lock_set.insert(String::from(".github"));
     initial_lock_set.insert(String::from(DEST_CONFIG_FILE_NAME));
     match json_blob_option {
         None => {
