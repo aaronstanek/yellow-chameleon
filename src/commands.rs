@@ -103,6 +103,7 @@ pub(crate) fn mkdir_all(path: &str) -> Result<(), String> {
 
 fn git_config_impl(key: &str, value: &str) -> Result<(), String> {
     match Command::new("git")
+        .arg("--no-pager")
         .arg("config")
         .arg("--global")
         .arg(key)
@@ -135,6 +136,7 @@ pub(crate) fn git_config(name: &str, email: &str) -> Result<(), String> {
 
 pub(crate) fn git_clone(repo_url: &str, pat: &str) -> Result<(), String> {
     match Command::new("git")
+        .arg("--no-pager")
         .arg("clone")
         .arg("--filter=tree:0")
         .arg(repo_url)
@@ -156,6 +158,7 @@ pub(crate) fn git_clone(repo_url: &str, pat: &str) -> Result<(), String> {
 
 pub(crate) fn git_add_all(cwd: &str) -> Result<(), String> {
     match Command::new("git")
+        .arg("--no-pager")
         .arg("add")
         .arg("-A")
         .current_dir(cwd)
@@ -180,6 +183,7 @@ pub(crate) enum GitDiffResult {
 
 pub(crate) fn git_diff(cwd: &str) -> Result<GitDiffResult, String> {
     match Command::new("git")
+        .arg("--no-pager")
         .arg("diff")
         .arg("HEAD")
         .arg("--name-only")
@@ -218,6 +222,7 @@ pub(crate) fn git_commit(cwd: &str) -> Result<(), String> {
         .format("Sync at %Y-%m-%d %H:%M:%S UTC")
         .to_string();
     match Command::new("git")
+        .arg("--no-pager")
         .arg("commit")
         .arg("-m")
         .arg(commit_message)
@@ -238,6 +243,7 @@ pub(crate) fn git_commit(cwd: &str) -> Result<(), String> {
 
 pub(crate) fn git_push(cwd: &str, repo_url: &str, pat: &str) -> Result<(), String> {
     match Command::new("git")
+        .arg("--no-pager")
         .arg("push")
         .arg(repo_url)
         .current_dir(cwd)
