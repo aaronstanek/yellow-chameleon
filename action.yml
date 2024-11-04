@@ -29,27 +29,39 @@ inputs:
     required: true
     type: string
 
+  is-piggybacked:
+    description: 'A flag to allow multiple runs in the same worker instance.'
+    required: false
+    type: boolean
+    default: false
+
 runs:
   using: "composite"
   steps:
+    - name: Clear destination if present
+      shell: bash
+      run: rm -rf destination
     - name: Checkout Source
+      if: ${{ ! inputs.is-piggybacked }}
       uses: actions/checkout@v4
       with:
         path: source
     - name: Check for cached yellow-chameleon binary
       id: check-cache
+      if: ${{ ! inputs.is-piggybacked }}
       uses: actions/cache@v4
       with:
         path: yellow-chameleon
         key: ${{ runner.os }}-yellow-chameleon-v0.3
     - name: Download yellow-chameleon binary if not cached
-      if: steps.check-cache.outputs.cache-hit != 'true'
+      if: ${{ steps.check-cache.outputs.cache-hit != 'true' && ! inputs.is-piggybacked }}
       uses: robinraju/release-downloader@v1
       with:
         repository: aaronstanek/yellow-chameleon
         tag: v0.3
         fileName: yellow-chameleon
     - name: Set yellow-chameleon binary to be executable
+      if: ${{ ! inputs.is-piggybacked }}
       shell: bash
       run: sudo chmod +x yellow-chameleon
     - name: Run yellow-chameleon
