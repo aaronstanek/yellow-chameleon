@@ -42,26 +42,26 @@ runs:
       shell: bash
       run: rm -rf destination
     - name: Checkout Source
-      if: ${{ ! inputs.is-piggybacked }}
+      if: inputs.is-piggybacked == 'false'
       uses: actions/checkout@v4
       with:
         path: source
     - name: Check for cached yellow-chameleon binary
       id: check-cache
-      if: ${{ ! inputs.is-piggybacked }}
+      if: inputs.is-piggybacked == 'false'
       uses: actions/cache@v4
       with:
         path: yellow-chameleon
         key: ${{ runner.os }}-yellow-chameleon-v0.3
     - name: Download yellow-chameleon binary if not cached
-      if: ${{ steps.check-cache.outputs.cache-hit != 'true' && ! inputs.is-piggybacked }}
+      if: inputs.is-piggybacked == 'false' && steps.check-cache.outputs.cache-hit != 'true'
       uses: robinraju/release-downloader@v1
       with:
         repository: aaronstanek/yellow-chameleon
         tag: v0.3
         fileName: yellow-chameleon
     - name: Set yellow-chameleon binary to be executable
-      if: ${{ ! inputs.is-piggybacked }}
+      if: inputs.is-piggybacked == 'false'
       shell: bash
       run: sudo chmod +x yellow-chameleon
     - name: Run yellow-chameleon
