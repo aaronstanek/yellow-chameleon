@@ -52,13 +52,13 @@ runs:
       uses: actions/cache@v4
       with:
         path: yellow-chameleon
-        key: ${{ runner.os }}-yellow-chameleon-v0.3
+        key: ${{ runner.os }}-yellow-chameleon-v1
     - name: Download yellow-chameleon binary if not cached
       if: inputs.is-piggybacked == 'false' && steps.check-cache.outputs.cache-hit != 'true'
       uses: robinraju/release-downloader@v1
       with:
         repository: aaronstanek/yellow-chameleon
-        tag: v0.3
+        tag: v1
         fileName: yellow-chameleon
     - name: Set yellow-chameleon binary to be executable
       if: inputs.is-piggybacked == 'false'

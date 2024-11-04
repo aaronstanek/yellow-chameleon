@@ -43,6 +43,7 @@ jobs:
           destination-pat-username: username
           git-name: MY NAME
           git-email: my-name@example.com
+          is-piggybacked: false
 ```
 
 The options for the call to yellow-chameleon are as follows:
@@ -58,3 +59,5 @@ The options for the call to yellow-chameleon are as follows:
 - `git-name`: This sets the author name for commits made in the destination repository.
 
 - `git-email`: This defines the author email for commits made in the destination repository.
+
+- `is-piggybacked`: A single source repository can feed into multiple destination repositories using only a single action. This is significantly faster than running a separate action for each destination repository. In such a configuration the first run of yellow-chameleon should have `is-piggybacked` set to `false`. All subsequent runs of yellow-chameleon in the same worker should have `is-piggybacked` set to `true`. The default value is `false`.
